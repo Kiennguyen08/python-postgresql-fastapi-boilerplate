@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  migration:
+    build:
+      dockerfile: deploy/Dockerfile.migration
+
+  app:
+    build:
+      dockerfile: deploy/Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - migration

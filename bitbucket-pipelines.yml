@@ -1,0 +1,35 @@
+# this file must be bitbucket-pipelines.yml in the root of your repository
+image: python:3.12-slim # quickest image
+
+clone:
+  depth: full # SonarCloud scanner needs the full history to assign issues properly
+
+pipelines:
+  branches:
+    "{master}":
+      - step:
+          name: Build-and-scan-sonar
+          clone:
+            depth: 2 # shallow clone
+          caches:
+            - git-modules
+            - pip
+            - sonar
+          script:
+            - echo "Building and run, testing..."
+            - git config credential.helper cache
+            - git remote set-url origin https://${BITBUCKET_APP_USER}:${BITBUCKET_APP_PASSWD}@bitbucket.org/$BITBUCKET_REPO_FULL_NAME.git
+            - pip install -r requirements-dev.txt
+            - pytest --cov-report=xml
+            - pipe: sonarsource/sonarqube-scan:1.0.0
+              variables:
+                SONAR_HOST_URL: ${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
+                SONAR_TOKEN: ${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
+                SONAR_SCANNER_OPTS: "-Dsonar.python.coverage.reportPaths=coverage.xml"
+          artifacts:
+            - coverage.xml
+
+definitions:
+  caches:
+    sonar: ~/.sonar/cache # Caching SonarCloud artifacts will speed up your build
+    git-modules: .git/modules # Caching git submodules
