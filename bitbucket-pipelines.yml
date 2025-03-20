@@ -1,35 +1,68 @@
-# this file must be bitbucket-pipelines.yml in the root of your repository
-image: python:3.12-slim # quickest image
+image: ghcr.io/astral-sh/uv:python3.12-bookworm
 
 clone:
-  depth: full # SonarCloud scanner needs the full history to assign issues properly
+  enabled: false # SonarCloud scanner needs the full history to assign issues properly
+
+definitions:
+  services:
+    docker:
+      memory: 4096
+  caches:
+    sonar: .sonar/cache # Caching SonarCloud artifacts will speed up your build
+  steps:
+    - step: &unitest
+        name: Run unittest
+        clone:
+          enabled: true
+          depth: full
+        script:
+          - echo "build, test, scan.."
+          - uv sync --frozen --extra dev
+          - uv run pytest --cov --cov-report=xml
+        artifacts:
+          - coverage.xml
+    - step: &build-test-sonarcloud
+        name: Build, test and analyze on SonarCloud
+        size: 2x
+        caches:
+          - sonar
+        clone:
+          enabled: true
+          depth: full
+        script:
+          - pipe: sonarsource/sonarcloud-scan:2.0.0
+            variables:
+              EXTRA_ARGS: >
+                -Dsonar.projectKey=voice-biometric-service
+                -Dsonar.sources=.
+                -Dsonar.host.url=https://sonarqube.vinbase.ai
+                -Dsonar.login=13fb34ad54a4ffc4500c0d417d4c929212ec354f
+                -Dsonar.python.coverage.reportPaths=coverage.xml -X
+              SONAR_SCANNER_OPTS: -Xmx2048m
+        artifacts:
+          - coverage.xml
+    - step: &check-quality-gate-sonarcloud
+        name: Check the Quality Gate on SonarCloud
+        script:
+          - apt-get update && apt-get install -y curl jq
+          - |
+            STATUS=$(curl -s -u "13fb34ad54a4ffc4500c0d417d4c929212ec354f:" \
+            "https://sonarqube.vinbase.ai/api/qualitygates/project_status?projectKey=voice-biometric-service" \
+            | jq -r '.projectStatus.status')
+            if [ "$STATUS" != "OK" ]; then
+              echo "Quality gate failed!";
+              exit 1;
+            fi
+            echo "Quality gate passed!"
 
 pipelines:
   branches:
-    "{master}":
-      - step:
-          name: Build-and-scan-sonar
-          clone:
-            depth: 2 # shallow clone
-          caches:
-            - git-modules
-            - pip
-            - sonar
-          script:
-            - echo "Building and run, testing..."
-            - git config credential.helper cache
-            - git remote set-url origin https://${BITBUCKET_APP_USER}:${BITBUCKET_APP_PASSWD}@bitbucket.org/$BITBUCKET_REPO_FULL_NAME.git
-            - pip install -r requirements-dev.txt
-            - pytest --cov-report=xml
-            - pipe: sonarsource/sonarqube-scan:1.0.0
-              variables:
-                SONAR_HOST_URL: ${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
-                SONAR_TOKEN: ${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
-                SONAR_SCANNER_OPTS: "-Dsonar.python.coverage.reportPaths=coverage.xml"
-          artifacts:
-            - coverage.xml
-
-definitions:
-  caches:
-    sonar: ~/.sonar/cache # Caching SonarCloud artifacts will speed up your build
-    git-modules: .git/modules # Caching git submodules
+    master:
+      - step: *unitest
+      - step: *build-test-sonarcloud
+      - step: *check-quality-gate-sonarcloud
+  pull-requests:
+    "**":
+      - step: *unitest
+      - step: *build-test-sonarcloud
+      - step: *check-quality-gate-sonarcloud
