@@ -17,7 +17,7 @@ definitions:
           depth: full
         script:
           - echo "build, test, scan.."
-          - uv sync --frozen --extra dev
+          - uv sync --frozen
           - uv run pytest --cov --cov-report=xml
         artifacts:
           - coverage.xml
