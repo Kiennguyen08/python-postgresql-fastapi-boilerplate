@@ -24,6 +24,8 @@ definitions:
           - uv run pytest --cov --cov-report=xml
         artifacts:
           - coverage.xml
+        services:
+          - redis
     - step: &build-test-sonarcloud
         name: Build, test and analyze on SonarCloud
         size: 2x
