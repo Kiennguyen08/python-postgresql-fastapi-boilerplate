@@ -7,6 +7,9 @@ definitions:
   services:
     docker:
       memory: 4096
+    redis:
+      image: redis:latest
+      command: ["redis-server", "--appendonly", "yes"]
   caches:
     sonar: .sonar/cache # Caching SonarCloud artifacts will speed up your build
   steps:

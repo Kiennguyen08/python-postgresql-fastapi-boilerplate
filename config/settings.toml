@@ -9,13 +9,13 @@ prefix = '/api/v1/voice-biometrics'
 swagger = true
 
 [postgres]
-uri = 'postgresql+asyncpg://postgres:1234@10.124.71.14:5432/voice-biometrics'
+uri = 'postgresql+asyncpg://postgres:1234@localhost:5432/voice-biometrics'
 max_overflow = 10
 pool_size = 10
 echo = false
 
 [redis]
-uri = 'redis://10.124.71.14:6379'
+uri = 'redis://localhost:6379'
 
 [passport]
 uri = 'https://dev-cloud.vinbase.ai/api/v1/pp/users/user'
