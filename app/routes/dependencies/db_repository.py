@@ -1,4 +1,3 @@
-from collections.abc import Callable
 from typing import Annotated, Tuple
 
 from fastapi import Depends
@@ -6,54 +5,72 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.cores.database import Base
 from app.endpoints import endpoint
-from app.models.user_voices import UserVoices
-from app.models.voice_styles import VoiceStyles
-from app.models.voices import Voices
+from app.models.project_ownership import ProjectOwnership
+from app.models.project_permission import ProjectPermission
+from app.models.project_sharing import ProjectSharing
+from app.models.projects import Projects
 from app.repositories.database_repository import DatabaseRepository
+
+
+def get_shared_session(
+    session: AsyncSession = Depends(endpoint.postgres.db_session),
+) -> AsyncSession:
+    return session
 
 
 def get_repository(
     model: type[Base],
-) -> Callable[[AsyncSession], DatabaseRepository]:
-    def func(session: AsyncSession = Depends(endpoint.postgres.db_session)):
-        return DatabaseRepository(model, session)
-
-    return func
+    session: Annotated[AsyncSession, Depends(get_shared_session)],
+) -> DatabaseRepository:
+    return DatabaseRepository(model, session)
 
 
-VoiceRepository = Annotated[
-    DatabaseRepository[Voices],
-    Depends(get_repository(Voices)),
+ProjectRepository = Annotated[
+    DatabaseRepository[Projects],
+    Depends(lambda session: get_repository(Projects, session)),
 ]
 
-VoiceStyleRepository = Annotated[
-    DatabaseRepository[VoiceStyles],
-    Depends(get_repository(VoiceStyles)),
+ProjectOwnershipRepository = Annotated[
+    DatabaseRepository[ProjectOwnership],
+    Depends(lambda session: get_repository(ProjectOwnership, session)),
 ]
 
-UserVoiceRepository = Annotated[
-    DatabaseRepository[UserVoices],
-    Depends(get_repository(UserVoices)),
+ProjectPermissionRepository = Annotated[
+    DatabaseRepository[ProjectPermission],
+    Depends(lambda session: get_repository(ProjectPermission, session)),
+]
+
+ProjectSharingRepository = Annotated[
+    DatabaseRepository[ProjectSharing],
+    Depends(lambda session: get_repository(ProjectSharing, session)),
 ]
 
 
-def get_voice_bundle_repo(
-    voices_repo: VoiceRepository,
-    styles_repo: VoiceStyleRepository,
-    user_voices_repo: UserVoiceRepository,
+def get_project_bundle_repo(
+    projects_repo: ProjectRepository,
+    project_ownership_repo: ProjectOwnershipRepository,
+    project_permission_repo: ProjectPermissionRepository,
+    project_sharing_repo: ProjectSharingRepository,
 ) -> Tuple[
-    DatabaseRepository[Voices],
-    DatabaseRepository[VoiceStyles],
-    DatabaseRepository[UserVoices],
+    DatabaseRepository[Projects],
+    DatabaseRepository[ProjectOwnership],
+    DatabaseRepository[ProjectPermission],
+    DatabaseRepository[ProjectSharing],
 ]:
-    return (voices_repo, styles_repo, user_voices_repo)
+    return (
+        projects_repo,
+        project_ownership_repo,
+        project_permission_repo,
+        project_sharing_repo,
+    )
 
 
-VoiceBundleRepository = Annotated[
+ProjectBundleRepository = Annotated[
     Tuple[
-        DatabaseRepository[Voices],
-        DatabaseRepository[VoiceStyles],
-        DatabaseRepository[UserVoices],
+        DatabaseRepository[Projects],
+        DatabaseRepository[ProjectOwnership],
+        DatabaseRepository[ProjectPermission],
+        DatabaseRepository[ProjectSharing],
     ],
-    Depends(get_voice_bundle_repo),
+    Depends(get_project_bundle_repo),
 ]

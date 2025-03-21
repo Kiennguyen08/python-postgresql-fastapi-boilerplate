@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class ErrorCode(str, Enum):
+    PROJECT_ALREADY_EXISTED = "4000001"
     NOT_FOUND_SUCH_ITEM = "40432000"
     NO_PERMISSION = "40332000"
 
