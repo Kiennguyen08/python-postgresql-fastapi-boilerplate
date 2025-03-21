@@ -12,65 +12,62 @@ from app.models.projects import Projects
 from app.repositories.database_repository import DatabaseRepository
 
 
-def get_shared_session(
-    session: AsyncSession = Depends(endpoint.postgres.db_session),
-) -> AsyncSession:
-    return session
-
-
 def get_repository(
     model: type[Base],
-    session: Annotated[AsyncSession, Depends(get_shared_session)],
+    session: AsyncSession,
 ) -> DatabaseRepository:
     return DatabaseRepository(model, session)
 
 
-ProjectRepository = Annotated[
-    DatabaseRepository[Projects],
-    Depends(lambda session: get_repository(Projects, session)),
-]
-
-ProjectOwnershipRepository = Annotated[
-    DatabaseRepository[ProjectOwnership],
-    Depends(lambda session: get_repository(ProjectOwnership, session)),
-]
-
-ProjectPermissionRepository = Annotated[
-    DatabaseRepository[ProjectPermission],
-    Depends(lambda session: get_repository(ProjectPermission, session)),
-]
-
-ProjectSharingRepository = Annotated[
-    DatabaseRepository[ProjectSharing],
-    Depends(lambda session: get_repository(ProjectSharing, session)),
-]
+def get_project_repository(
+    db: AsyncSession = Depends(endpoint.postgres.db_session),
+) -> DatabaseRepository[Projects]:
+    return get_repository(Projects, db)
 
 
-def get_project_bundle_repo(
-    projects_repo: ProjectRepository,
-    project_ownership_repo: ProjectOwnershipRepository,
-    project_permission_repo: ProjectPermissionRepository,
-    project_sharing_repo: ProjectSharingRepository,
-) -> Tuple[
-    DatabaseRepository[Projects],
-    DatabaseRepository[ProjectOwnership],
-    DatabaseRepository[ProjectPermission],
-    DatabaseRepository[ProjectSharing],
-]:
-    return (
-        projects_repo,
-        project_ownership_repo,
-        project_permission_repo,
-        project_sharing_repo,
-    )
+def get_project_ownership_repository(
+    db: AsyncSession = Depends(endpoint.postgres.db_session),
+) -> DatabaseRepository[ProjectOwnership]:
+    return get_repository(ProjectOwnership, db)
 
 
-ProjectBundleRepository = Annotated[
-    Tuple[
-        DatabaseRepository[Projects],
-        DatabaseRepository[ProjectOwnership],
-        DatabaseRepository[ProjectPermission],
-        DatabaseRepository[ProjectSharing],
-    ],
-    Depends(get_project_bundle_repo),
-]
+def get_project_permission_repository(
+    db: AsyncSession = Depends(endpoint.postgres.db_session),
+) -> DatabaseRepository[ProjectPermission]:
+    return get_repository(ProjectPermission, db)
+
+
+def get_project_sharing_repository(
+    db: AsyncSession = Depends(endpoint.postgres.db_session),
+) -> DatabaseRepository[ProjectSharing]:
+    return get_repository(ProjectSharing, db)
+
+
+# def get_project_bundle_repo(
+#     projects_repo: ProjectRepository,
+#     project_ownership_repo: ProjectOwnershipRepository,
+#     project_permission_repo: ProjectPermissionRepository,
+#     project_sharing_repo: ProjectSharingRepository,
+# ) -> Tuple[
+#     DatabaseRepository[Projects],
+#     DatabaseRepository[ProjectOwnership],
+#     DatabaseRepository[ProjectPermission],
+#     DatabaseRepository[ProjectSharing],
+# ]:
+#     return (
+#         projects_repo,
+#         project_ownership_repo,
+#         project_permission_repo,
+#         project_sharing_repo,
+#     )
+
+
+# ProjectBundleRepository = Annotated[
+#     Tuple[
+#         DatabaseRepository[Projects],
+#         DatabaseRepository[ProjectOwnership],
+#         DatabaseRepository[ProjectPermission],
+#         DatabaseRepository[ProjectSharing],
+#     ],
+#     Depends(get_project_bundle_repo),
+# ]

@@ -9,11 +9,10 @@ from app.dto.requests.project import CreateProjectRequest
 from app.models.project_ownership import ProjectOwnership
 from app.models.project_permission import ProjectPermission
 from app.models.projects import Projects
-from app.routes.dependencies.db_repository import ProjectBundleRepository
 
 
 class ProjectService:
-    def __init__(self, repository: ProjectBundleRepository):
+    def __init__(self, repository):
         (
             self.projects_repo,
             self.project_ownership_repo,
@@ -61,7 +60,6 @@ class ProjectService:
             skip=skip,
             limit=limit,
         )
-        print("@self", self.projects_repo)
         total_item_searched = await self.projects_repo.count(*filters)
         return entities, total_item_searched
 

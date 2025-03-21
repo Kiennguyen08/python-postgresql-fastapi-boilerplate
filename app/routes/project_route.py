@@ -5,7 +5,19 @@ from fastapi import APIRouter, Depends, Query
 from app.dto.passport import UserData
 from app.dto.project import ListProjectResponseData, ProjectResponse
 from app.dto.requests.project import CreateProjectRequest
-from app.routes.dependencies.db_repository import ProjectBundleRepository
+from app.models.project_ownership import ProjectOwnership
+from app.models.project_permission import ProjectPermission
+from app.models.project_sharing import ProjectSharing
+from app.models.projects import Projects
+from app.repositories.database_repository import (
+    DatabaseRepository,
+)
+from app.routes.dependencies.db_repository import (
+    get_project_ownership_repository,
+    get_project_permission_repository,
+    get_project_repository,
+    get_project_sharing_repository,
+)
 from app.security.auth import get_current_user
 from app.services.project_service import ProjectService
 
@@ -14,7 +26,16 @@ project_router = APIRouter()
 
 @project_router.get("/projects", status_code=200, response_model=ProjectResponse)
 async def list_projects(
-    project_bundle: ProjectBundleRepository,
+    project_repo: DatabaseRepository[Projects] = Depends(get_project_repository),
+    project_ownership_repo: DatabaseRepository[ProjectOwnership] = Depends(
+        get_project_ownership_repository
+    ),
+    project_permission_repo: DatabaseRepository[ProjectPermission] = Depends(
+        get_project_permission_repository
+    ),
+    project_sharing_repo: DatabaseRepository[ProjectSharing] = Depends(
+        get_project_sharing_repository
+    ),
     search: Optional[str] = Query(
         None, description="Search by project name or description"
     ),
@@ -29,7 +50,14 @@ async def list_projects(
     ),
     # user: UserData = Depends(get_current_user),
 ):
-    project_service = ProjectService(project_bundle)
+    project_service = ProjectService(
+        (
+            project_repo,
+            project_ownership_repo,
+            project_permission_repo,
+            project_sharing_repo,
+        )
+    )
     if created_at and len(created_at) == 2:
         from_date, to_date = created_at
     else:
@@ -51,10 +79,26 @@ async def list_projects(
 
 @project_router.post("/projects", status_code=200)
 async def create_project(
-    project_bundle: ProjectBundleRepository,
     body: CreateProjectRequest,
+    project_repo: DatabaseRepository[Projects] = Depends(get_project_repository),
+    project_ownership_repo: DatabaseRepository[ProjectOwnership] = Depends(
+        get_project_ownership_repository
+    ),
+    project_permission_repo: DatabaseRepository[ProjectPermission] = Depends(
+        get_project_permission_repository
+    ),
+    project_sharing_repo: DatabaseRepository[ProjectSharing] = Depends(
+        get_project_sharing_repository
+    ),
     user: UserData = Depends(get_current_user),
 ):
-    project_service = ProjectService(project_bundle)
+    project_service = ProjectService(
+        (
+            project_repo,
+            project_ownership_repo,
+            project_permission_repo,
+            project_sharing_repo,
+        )
+    )
     project_data = await project_service.create_project(user.id, body)
     return ProjectResponse(message="Create new project successfully", data=project_data)
