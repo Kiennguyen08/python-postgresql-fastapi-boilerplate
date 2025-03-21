@@ -3,6 +3,9 @@
 ## Project Overview
 This service uses a Makefile to simplify build, run, and test operations.
 
+## Documents:
+Project Schema: Confluence[https://vinbdi-slp.atlassian.net/wiki/spaces/VB2P/pages/1814660454/Project+Management?force_transition=7ec89756-27e9-4205-a84f-d739a912cad7]
+
 ### 1. **Install**  
    ```bash
    make install

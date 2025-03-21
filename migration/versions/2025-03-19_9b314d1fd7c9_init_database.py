@@ -7,6 +7,7 @@ Create Date: 2025-03-19 18:08:36.340324
 """
 
 from typing import Sequence, Union
+import uuid
 
 from alembic import op
 import sqlalchemy as sa
@@ -24,7 +25,7 @@ def upgrade() -> None:
     # ### CREATE TABLE projects ###
     op.create_table(
         "projects",
-        sa.Column("id", sa.Integer, primary_key=True),
+        sa.Column("id", sa.Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4),
         sa.Column("name", sa.String(50), nullable=False),
         sa.Column("description", sa.String(200)),
         sa.Column(
@@ -42,16 +43,13 @@ def upgrade() -> None:
     op.create_index("idx_projects_created_at", "projects", ["created_at"])
     op.create_index("idx_projects_name_created_at", "projects", ["name", "created_at"])
 
-    # ### CREATE TABLE user_projects ###
+    # ### CREATE TABLE project_ownership ###
     op.create_table(
-        "user_projects",
+        "project_ownership",
         sa.Column("id", sa.Integer, primary_key=True),
-        sa.Column("project_id", sa.Integer, nullable=False),
         sa.Column("user_id", sa.String(50), nullable=False),
+        sa.Column("project_id", sa.Uuid(as_uuid=True), nullable=False),
         sa.Column("role", sa.String(20), nullable=False),
-        sa.Column(
-            "is_favorite", sa.Boolean(), server_default=sa.sql.expression.false()
-        ),
         sa.Column(
             "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
         ),
@@ -64,15 +62,54 @@ def upgrade() -> None:
         ),
         sa.Column("deleted_at", sa.DateTime(), nullable=True),
     )
-    op.create_index("idx_user_projects_created_at", "user_projects", ["created_at"])
-    op.create_index("idx_user_projects_project_id", "user_projects", ["project_id"])
-    op.create_index("idx_user_projects_user_id", "user_projects", ["user_id"])
+    op.create_index(
+        "idx_project_ownership_project_id", "project_ownership", ["project_id"]
+    )
+    op.create_index("idx_project_ownership_user_id", "project_ownership", ["user_id"])
+
+    # ### CREATE TABLE project_sharing ###
+    op.create_table(
+        "project_sharing",
+        sa.Column("id", sa.Integer, primary_key=True),
+        sa.Column("user_id", sa.String(50), nullable=False),
+        sa.Column("project_id", sa.Uuid(as_uuid=True), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
+        ),
+        sa.Column("deleted_at", sa.DateTime(), nullable=True),
+    )
+    op.create_index("idx_project_sharing_project_id", "project_sharing", ["project_id"])
+    op.create_index("idx_project_sharing_user_id", "project_sharing", ["user_id"])
+
+    # ### CREATE TABLE project_sharing ###
+    op.create_table(
+        "project_permission",
+        sa.Column("id", sa.Integer, primary_key=True),
+        sa.Column("user_id", sa.String(50), nullable=False),
+        sa.Column("project_id", sa.Uuid(as_uuid=True), nullable=False),
+        sa.Column("permission_type", sa.Text, nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(),
+            server_default=sa.func.now(),
+            onupdate=sa.func.now(),
+            nullable=False,
+        ),
+        sa.Column("deleted_at", sa.DateTime(), nullable=True),
+    )
+    op.create_index(
+        "idx_project_permission_project_id", "project_permission", ["project_id"]
+    )
+    op.create_index("idx_project_permission_user_id", "project_permission", ["user_id"])
 
     # ### CREATE TABLE api_keys ###
     op.create_table(
         "api_keys",
         sa.Column("id", sa.Integer, primary_key=True),
-        sa.Column("project_id", sa.Integer, nullable=False),
+        sa.Column("project_id", sa.Uuid(as_uuid=True), nullable=False),
         sa.Column("name", sa.String(50), nullable=False),
         sa.Column("api_key", sa.String(100), nullable=False),
         sa.Column(
@@ -93,11 +130,20 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    # ### DROP user_projects ###
-    op.drop_index("idx_user_projects_created_at", table_name="user_projects")
-    op.drop_index("idx_user_projects_project_id", table_name="user_projects")
-    op.drop_index("idx_user_projects_user_id", table_name="user_projects")
-    op.drop_table("user_projects")
+    # ### DROP project_sharing ###
+    op.drop_index("idx_project_permission_project_id", table_name="project_permission")
+    op.drop_index("idx_project_permission_user_id", table_name="project_permission")
+    op.drop_table("project_permission")
+
+    # ### DROP project_sharing ###
+    op.drop_index("idx_project_sharing_project_id", table_name="project_sharing")
+    op.drop_index("idx_project_sharing_user_id", table_name="project_sharing")
+    op.drop_table("project_sharing")
+
+    # ### DROP project_ownership ###
+    op.drop_index("idx_project_ownership_project_id", table_name="project_ownership")
+    op.drop_index("idx_project_ownership_user_id", table_name="project_ownership")
+    op.drop_table("project_ownership")
 
     # ### DROP projects ###
     op.drop_index("idx_projects_created_at", table_name="projects")
