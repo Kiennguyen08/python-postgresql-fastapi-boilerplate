@@ -1,5 +1,3 @@
-from typing import Annotated, Tuple
-
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -43,31 +41,16 @@ def get_project_sharing_repository(
     return get_repository(ProjectSharing, db)
 
 
-# def get_project_bundle_repo(
-#     projects_repo: ProjectRepository,
-#     project_ownership_repo: ProjectOwnershipRepository,
-#     project_permission_repo: ProjectPermissionRepository,
-#     project_sharing_repo: ProjectSharingRepository,
-# ) -> Tuple[
-#     DatabaseRepository[Projects],
-#     DatabaseRepository[ProjectOwnership],
-#     DatabaseRepository[ProjectPermission],
-#     DatabaseRepository[ProjectSharing],
-# ]:
-#     return (
-#         projects_repo,
-#         project_ownership_repo,
-#         project_permission_repo,
-#         project_sharing_repo,
-#     )
-
-
-# ProjectBundleRepository = Annotated[
-#     Tuple[
-#         DatabaseRepository[Projects],
-#         DatabaseRepository[ProjectOwnership],
-#         DatabaseRepository[ProjectPermission],
-#         DatabaseRepository[ProjectSharing],
-#     ],
-#     Depends(get_project_bundle_repo),
-# ]
+def get_project_repositories(
+    db: AsyncSession = Depends(endpoint.postgres.db_session),
+):
+    project_repo = get_project_repository(db)
+    project_ownership_repo = get_project_ownership_repository(db)
+    project_permission_repo = get_project_permission_repository(db)
+    project_sharing_repo = get_project_sharing_repository(db)
+    return (
+        project_repo,
+        project_ownership_repo,
+        project_permission_repo,
+        project_sharing_repo,
+    )
