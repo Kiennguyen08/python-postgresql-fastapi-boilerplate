@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, String, Uuid, func
+from sqlalchemy import DateTime, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.cores.database import Base
@@ -14,7 +14,9 @@ class Projects(Base):
 
     # Map the 'id' field as a UUID primary key with a default value of a new UUID
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4
+        String(36),
+        primary_key=True,
+        default=lambda: str(uuid.uuid4()),
     )
 
     # Other fields

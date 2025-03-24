@@ -6,12 +6,11 @@ Create Date: 2025-03-19 18:08:36.340324
 
 """
 
-from typing import Sequence, Union
 import uuid
+from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "9b314d1fd7c9"
@@ -25,7 +24,9 @@ def upgrade() -> None:
     # ### CREATE TABLE projects ###
     op.create_table(
         "projects",
-        sa.Column("id", sa.Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4),
+        sa.Column(
+            "id", sa.String(36), primary_key=True, default=lambda: str(uuid.uuid4)
+        ),
         sa.Column("name", sa.String(50), nullable=False),
         sa.Column("description", sa.String(200)),
         sa.Column(
@@ -48,7 +49,7 @@ def upgrade() -> None:
         "project_ownership",
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("user_id", sa.String(50), nullable=False),
-        sa.Column("project_id", sa.Uuid(as_uuid=True), nullable=False),
+        sa.Column("project_id", sa.String(36), nullable=False),
         sa.Column(
             "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
         ),
@@ -71,7 +72,7 @@ def upgrade() -> None:
         "project_sharing",
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("user_id", sa.String(50), nullable=False),
-        sa.Column("project_id", sa.Uuid(as_uuid=True), nullable=False),
+        sa.Column("project_id", sa.String(36), nullable=False),
         sa.Column(
             "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
         ),
@@ -85,7 +86,7 @@ def upgrade() -> None:
         "project_permission",
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("user_id", sa.String(50), nullable=False),
-        sa.Column("project_id", sa.Uuid(as_uuid=True), nullable=False),
+        sa.Column("project_id", sa.String(36), nullable=False),
         sa.Column("permission_type", sa.Text, nullable=False),
         sa.Column(
             "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
@@ -108,7 +109,7 @@ def upgrade() -> None:
     op.create_table(
         "api_keys",
         sa.Column("id", sa.Integer, primary_key=True),
-        sa.Column("project_id", sa.Uuid(as_uuid=True), nullable=False),
+        sa.Column("project_id", sa.String(36), nullable=False),
         sa.Column("name", sa.String(50), nullable=False),
         sa.Column("api_key", sa.String(100), nullable=False),
         sa.Column(

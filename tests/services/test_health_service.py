@@ -1,6 +1,7 @@
 import pytest
-from app.services.health_service import HealthService
+
 from app.cores.health_checker import HealthChecker
+from app.services.health_service import HealthService
 
 
 class MockHealthChecker(HealthChecker):

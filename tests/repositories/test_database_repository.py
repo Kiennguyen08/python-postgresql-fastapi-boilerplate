@@ -1,10 +1,11 @@
-import pytest
-from unittest.mock import AsyncMock, MagicMock
-from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime
+from unittest.mock import AsyncMock, MagicMock
 
-from app.repositories.database_repository import DatabaseRepository
+import pytest
+from sqlalchemy import Column, DateTime, Integer, String
+
 from app.cores.database import Base
+from app.repositories.database_repository import DatabaseRepository
 
 
 class DummyModel(Base):

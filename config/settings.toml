@@ -9,7 +9,7 @@ prefix = '/api/v1/voice-biometrics'
 swagger = true
 
 [postgres]
-uri = 'postgresql+asyncpg://postgres:1234@localhost:5432/voice-biometrics'
+uri = 'postgresql+asyncpg://postgres:1234@localhost:5432/voice_biometrics'
 max_overflow = 10
 pool_size = 10
 echo = false

@@ -1,6 +1,7 @@
 import pytest
-from fastapi import FastAPI
 from asgi_correlation_id import CorrelationIdMiddleware
+from fastapi import FastAPI
+
 from app.cores.request_id import add_request_id
 
 

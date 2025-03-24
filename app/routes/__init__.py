@@ -8,7 +8,7 @@ from .health_route import heath_router
 from .internal import internal_router
 from .project_route import project_router
 
-build_module = os.getenv("BUILD_MODULE", "public").lower()
+build_module = os.getenv("BUILD_MODULE", "internal").lower()
 router = APIRouter()
 public_router = APIRouter()
 
