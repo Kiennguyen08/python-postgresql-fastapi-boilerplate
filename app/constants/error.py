@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class ErrorCode(str, Enum):
-    PROJECT_ALREADY_EXISTED = "4000001"
+    PROJECT_NAME_ALREADY_EXISTED = "4000001"
     NOT_FOUND_SUCH_ITEM = "40432000"
     NO_PERMISSION = "40332000"
 
@@ -17,4 +17,5 @@ ERROR_MESSAGES = {
     ErrorCode.NO_PERMISSION.value: "No permission",
     ErrorCode.UNAUTHORIZED_PASSPORT.value: "Invalid authentication credentials",
     ErrorCode.UNAUTHENTICATED_PASSPORT.value: "Unauthenticated credentials with passport",
+    ErrorCode.PROJECT_NAME_ALREADY_EXISTED.value: "Project name has already existed",
 }

@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List, Optional, Union
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
@@ -7,7 +8,7 @@ from app.dto.response_dto import BaseResponseData
 
 
 class Project(BaseModel):
-    id: str
+    id: Union[str, UUID]
     name: str
     description: str
     created_at: Optional[datetime]

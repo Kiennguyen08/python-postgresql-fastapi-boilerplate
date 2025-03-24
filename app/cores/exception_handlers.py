@@ -24,7 +24,7 @@ def add_exception_handlers(app: FastAPI):
         return JSONResponse(
             status_code=422,
             content=BaseResponseData(
-                error_code=error_code, message=ERROR_MESSAGES[error_code], data=None
+                error_code=422, message=error_code, data=None
             ).model_dump(),
         )
 

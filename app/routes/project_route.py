@@ -53,7 +53,7 @@ async def list_projects(
         from_date, to_date = created_at
     else:
         from_date, to_date = None, None
-    voices, total_item_searched = await project_service.list_projects(
+    projects, total_item_searched = await project_service.list_projects(
         user_id=user.id,
         search=search,
         created_at_from=from_date,
@@ -64,7 +64,7 @@ async def list_projects(
 
     return ProjectResponse(
         message="Get voices successfully",
-        data=ListProjectResponseData(total_item=total_item_searched, items=voices),
+        data=ListProjectResponseData(total_item=total_item_searched, items=projects),
     )
 
 

@@ -1,18 +1,29 @@
-from typing import Optional
+from typing import Optional, Tuple
 
 from sqlalchemy import or_
 
 from app.constants.enum import ProjectPermission as Permission
 from app.constants.error import ErrorCode
 from app.cores.errors import BadRequestException
+from app.dto.project import Project
 from app.dto.requests.project import CreateProjectRequest
 from app.models.project_ownership import ProjectOwnership
 from app.models.project_permission import ProjectPermission
+from app.models.project_sharing import ProjectSharing
 from app.models.projects import Projects
+from app.repositories.database_repository import DatabaseRepository
 
 
 class ProjectService:
-    def __init__(self, repository):
+    def __init__(
+        self,
+        repository: Tuple[
+            DatabaseRepository[Projects],
+            DatabaseRepository[ProjectOwnership],
+            DatabaseRepository[ProjectPermission],
+            DatabaseRepository[ProjectSharing],
+        ],
+    ):
         (
             self.projects_repo,
             self.project_ownership_repo,
@@ -66,21 +77,24 @@ class ProjectService:
     async def create_project(self, user_id: str, request: CreateProjectRequest):
         is_duplicated = await self.find_duplicate_project_name(user_id, request.name)
         if is_duplicated:
-            raise BadRequestException(ErrorCode.PROJECT_ALREADY_EXISTED.value)
+            raise BadRequestException(ErrorCode.PROJECT_NAME_ALREADY_EXISTED.value)
+        shared_session = self.projects_repo.session
         new_project = Projects(name=request.name, description=request.description)
-        self.projects_repo.session.add(new_project)
-        _ = ProjectOwnership(
+        shared_session.add(new_project)
+        await shared_session.flush()  # Flush to get the new_project.id
+        project_ownership = ProjectOwnership(
             user_id=user_id,
             project_id=new_project.id,
         )
-        await self.project_ownership_repo.session.commit()
-        _ = ProjectPermission(
+        shared_session.add(project_ownership)
+        project_permission = ProjectPermission(
             user_id=user_id,
             project_id=new_project.id,
             permission_type=Permission.EDIT,
         )
-        await self.project_permission_repo.session.commit()
-        return new_project
+        shared_session.add(project_permission)
+        await shared_session.commit()  # Commit all changes
+        return Project.model_validate(new_project)
 
     async def find_duplicate_project_name(self, user_id: str, project_name: str):
         filters_by_user_id_permission = [
@@ -96,5 +110,5 @@ class ProjectService:
             ),
             Projects.name == project_name,
         ]
-        results = await self.projects_repo.count(filters)
+        results = await self.projects_repo.count(*filters)
         return results > 0

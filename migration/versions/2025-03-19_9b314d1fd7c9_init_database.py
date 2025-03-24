@@ -49,7 +49,6 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("user_id", sa.String(50), nullable=False),
         sa.Column("project_id", sa.Uuid(as_uuid=True), nullable=False),
-        sa.Column("role", sa.String(20), nullable=False),
         sa.Column(
             "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
         ),
