@@ -14,7 +14,7 @@ run:
 install:
 	@pip install uv
 	@uv venv --python 3.12
-	@uv sync --forzen --extra dev
+	@uv sync --frozen --extra dev
 
 # Run tests
 test:

@@ -23,7 +23,7 @@ COPY app/ app/
 COPY config/ config/
 
 ENV PATH="/opt/.venv/bin:$PATH" \
-  OTEL_SERVICE_NAME="voice-biometric-service" \
+  OTEL_SERVICE_NAME="minitest" \
   OTEL_METRICS_EXPORTER="" \
   LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" \
   MALLOC_CONF="background_thread:true,metadata_thp:auto,dirty_decay_ms:5000,muzzy_decay_ms:5000"

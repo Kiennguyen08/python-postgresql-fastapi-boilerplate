@@ -15,7 +15,4 @@ class ErrorCode(str, Enum):
 ERROR_MESSAGES = {
     ErrorCode.NOT_FOUND_SUCH_ITEM.value: "Not found such item",
     ErrorCode.NO_PERMISSION.value: "No permission",
-    ErrorCode.UNAUTHORIZED_PASSPORT.value: "Invalid authentication credentials",
-    ErrorCode.UNAUTHENTICATED_PASSPORT.value: "Unauthenticated credentials with passport",
-    ErrorCode.PROJECT_NAME_ALREADY_EXISTED.value: "Project name has already existed",
 }

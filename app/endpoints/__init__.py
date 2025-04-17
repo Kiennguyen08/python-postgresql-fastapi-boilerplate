@@ -1,5 +1,4 @@
 from app.config import Config, config
-from app.endpoints.passport import Passport
 from app.endpoints.postgres import PostgresDB
 from app.endpoints.redis import RedisClient
 
@@ -13,7 +12,6 @@ class EndpointManager:
         self.config = config
         self.postgres = PostgresDB(config.postgres)
         self.redis = RedisClient(config.redis)
-        self.passport = Passport(config.passport)
 
     async def connect(self):
         """
