@@ -46,6 +46,7 @@ dependencies = [
     "pydub==0.25.1",
     "pyjwt[crypto]==2.9.0",
     "python-multipart==0.0.6",
+    "pytz>=2025.2",
     "slowapi==0.1.8",
     "sqlalchemy==2.0.25",
     "tomli==2.0.1",

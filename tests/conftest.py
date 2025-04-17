@@ -42,6 +42,4 @@ async def session(session_maker):
 @pytest.fixture(scope="session")
 async def repositories(session):
     message_repo = DatabaseRepository(Message, session)
-    return (
-        message_repo,
-    )
+    return (message_repo,)

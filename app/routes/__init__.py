@@ -4,8 +4,8 @@ from fastapi import APIRouter
 
 from app.config import config
 
-from .health_route import heath_router
 from .chat_route import chat_router
+from .health_route import heath_router
 
 build_module = os.getenv("BUILD_MODULE", "internal").lower()
 router = APIRouter()

@@ -5,17 +5,14 @@ log_level = 10
 allowed = ['*']
 
 [metadata]
-prefix = '/api/v1/voice-biometrics'
+prefix = '/api/v1/minitest'
 swagger = true
 
 [postgres]
-uri = 'postgresql+asyncpg://postgres:1234@localhost:5432/voice_biometrics'
+uri = 'postgresql+asyncpg://postgres:1234@localhost:5432/minitest'
 max_overflow = 10
 pool_size = 10
 echo = false
 
 [redis]
 uri = 'redis://localhost:6379'
-
-[passport]
-uri = 'https://dev-cloud.vinbase.ai/api/v1/pp/users/user'

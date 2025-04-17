@@ -10,7 +10,7 @@ async def test_check_health_success(client):
         # Mock successful health check
         mock_health_check.return_value = ({"PostgresDB": True, "Redis": True}, True)
 
-        resp = client.get("/api/v1/voice-biometrics/ping")
+        resp = client.get("/api/v1/minitest/ping")
         assert resp.status_code == 200
         assert resp.json() == {
             "error_code": 0,
@@ -28,7 +28,7 @@ async def test_check_health_unavailable(client):
         # Mock unsuccessful health check
         mock_health_check.return_value = ({"PostgresDB": False, "Redis": False}, False)
 
-        resp = client.get("/api/v1/voice-biometrics/ping")
+        resp = client.get("/api/v1/minitest/ping")
         assert resp.status_code == 503
         assert resp.json() == {
             "error_code": 0,
@@ -45,7 +45,7 @@ async def test_check_health_postgres_down(client):
     ) as mock_health_check:
         mock_health_check.return_value = ({"PostgresDB": False, "Redis": True}, False)
 
-        resp = client.get("/api/v1/voice-biometrics/ping")
+        resp = client.get("/api/v1/minitest/ping")
         assert resp.status_code == 503
         assert resp.json() == {
             "error_code": 0,
@@ -62,7 +62,7 @@ async def test_check_health_redis_down(client):
     ) as mock_health_check:
         mock_health_check.return_value = ({"PostgresDB": True, "Redis": False}, False)
 
-        resp = client.get("/api/v1/voice-biometrics/ping")
+        resp = client.get("/api/v1/minitest/ping")
         assert resp.status_code == 503
         assert resp.json() == {
             "error_code": 0,

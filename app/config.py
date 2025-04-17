@@ -29,8 +29,9 @@ class RedisConfig(BaseModel):
     uri: str
 
 
-class PassportConfig(BaseModel):
-    uri: str
+class ConstrainConfig(BaseModel):
+    max_clients: Optional[int] = 50
+    max_messages: Optional[int] = 500
 
 
 class Config(BaseSettings):
@@ -43,7 +44,7 @@ class Config(BaseSettings):
     metadata: MetadataConfig
     postgres: PostgresConfig
     redis: RedisConfig
-    passport: PassportConfig
+    contraint: ConstrainConfig
 
 
 # Load config from settings.toml
