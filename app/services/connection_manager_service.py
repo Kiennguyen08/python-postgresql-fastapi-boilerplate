@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 class ConnectionManagerService:
     def __init__(self, session_manager: SessionManager):
         self.session_manager = session_manager
+        self.message_count = 0
         self.max_clients = config.contraint.max_clients
         self.max_messages = config.contraint.max_messages
 
@@ -30,10 +31,11 @@ class ConnectionManagerService:
                     TimeZone.ASIA_TOKYO,
                 ]
             )
-            session_metadata: SessionMetadata = {
-                websocket: websocket,
-                timezone: timezone,
-            }
+            session_metadata: SessionMetadata = SessionMetadata(
+                websocket=websocket,
+                timezone=timezone,
+            )
+    
             await self.session_manager.acquire(
                 session_id=client_id, metadata=session_metadata
             )
@@ -55,7 +57,7 @@ class ConnectionManagerService:
             return
 
         client = await self.session_manager.get_session(session_id=client_id)
-        tz = pytz.timezone(client.timezone)
+        tz = pytz.timezone(client.timezone.value)
         now = datetime.now(tz)
         msg_type = message["type"]
 
@@ -76,8 +78,8 @@ class ConnectionManagerService:
 
             # Simulate processing delay
             delay = random.uniform(
-                0 if msg_type == "text" else 1 if msg_type == "voice" else 2,
-                1 if msg_type == "text" else 2 if msg_type == "voice" else 3,
+                0 if msg_type == MessageType.TEXT else 1 if msg_type == MessageType.VOICE else 2,
+                1 if msg_type == MessageType.TEXT else 2 if msg_type == MessageType.VOICE else 3,
             )
             await asyncio.sleep(delay)
 
@@ -88,11 +90,11 @@ class ConnectionManagerService:
                     {"type": MessageType.TEXT, "content": "GPT: Message received!"}
                 )
             if msg_type == MessageType.VOICE:
-                replies.append({"type": MessageType.VOICE, "content": b"12345"})
+                replies.append({"type": MessageType.VOICE, "content": "12345"})
             elif msg_type == MessageType.VIDEO:
                 replies.extend(
                     [
-                        {"type": MessageType.VIDEO, "content": b"12345"},
+                        {"type": MessageType.VIDEO, "content": "12345"},
                     ]
                 )
 

@@ -17,7 +17,7 @@ def get_repositories() -> DatabaseRepository[Message]:
     return get_message_repository()
 
 
-@chat_router.websocket("/ws/{client_id}")
+@chat_router.websocket("/chat/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
     await websocket.accept()
     connected = await connection_manager.connect(websocket, client_id)
@@ -29,4 +29,4 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
             data = await websocket.receive_json()
             await connection_manager.process_message(client_id, data)
     except WebSocketDisconnect:
-        await connection_manager.disconnect[client_id]
+        await connection_manager.disconnect(client_id)

@@ -6,9 +6,12 @@ ALEMBIC_CONFIG := config/alembic.ini
 
 # Run the application
 run:
-	@opentelemetry-instrument uvicorn --factory app:create_app \
-		--host=0.0.0.0 --port=8000 \
+	@uvicorn --factory app:create_app \
+		--host=0.0.0.0 --port=7000 \
 		--log-config=config/log-config.yml
+
+test_client:
+	@uv run app/clients/client.py
 
 # Install dependencies and set up virtual environment
 install:

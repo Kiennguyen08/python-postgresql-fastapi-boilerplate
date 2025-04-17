@@ -16,3 +16,7 @@ echo = false
 
 [redis]
 uri = 'redis://localhost:6379'
+
+[contraint]
+max_clients = 50
+max_messages = 500
