@@ -21,17 +21,10 @@ class MessageService:
     ):
         filter = [Message.client_id == client_id]
         order_by = Message.timestamp.desc()
-        entities_task = self.repository.filter(
+        entities = await self.repository.filter(
             *filter, skip=page, limit=limit, order_by=order_by
         )
-        total_item_searched_task = self.repository.count(*filter)
-        entities, total_item_searched = await asyncio.gather(
-            entities_task, total_item_searched_task
-        )
-        # entities = await self.repository.filter(
-        #     *filter, skip=page, limit=limit, order_by=order_by
-        # )
-        # total_item_searched = await self.repository.count(*filter)
+        total_item_searched = await self.repository.count(*filter)
 
         return entities, total_item_searched
 

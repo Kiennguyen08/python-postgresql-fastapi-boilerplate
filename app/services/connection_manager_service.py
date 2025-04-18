@@ -85,7 +85,7 @@ class ConnectionManagerService:
             type=msg_type,
             content=message.get("content"),
             status=MessageStatus.PENDING,
-            timestamp=int(time.time()),
+            timestamp=datetime.now(),
         )
         entity = await message_service.save_message(message=message_dto)
 

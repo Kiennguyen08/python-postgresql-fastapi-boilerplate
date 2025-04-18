@@ -66,7 +66,6 @@ class DatabaseRepository(Generic[Model]):
         query = (
             select(func.count())
             .select_from(self.model)
-            .where(self.model.deleted_at.is_(None))
         )
         if expressions:
             query = query.where(*expressions)
