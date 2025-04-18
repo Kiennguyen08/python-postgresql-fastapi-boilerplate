@@ -2,7 +2,9 @@ from enum import Enum
 
 
 class MessageStatus(str, Enum):
-    pass
+    PENDING = "pending"
+    SUCCESS = "success"
+    FAIL = "fail"
 
 
 class TimeZone(Enum):

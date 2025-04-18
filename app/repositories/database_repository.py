@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Generic, Optional, TypeVar
 
-from sqlalchemy import BinaryExpression, func, select
+from sqlalchemy import BinaryExpression, ColumnElement, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.cores.database import Base
@@ -50,10 +50,13 @@ class DatabaseRepository(Generic[Model]):
         *expressions: BinaryExpression,
         skip: Optional[int] = None,
         limit: Optional[int] = None,
+        order_by: Optional[ColumnElement] = None,
     ) -> list[Model]:
-        query = select(self.model).where(self.model.deleted_at.is_(None))
+        query = select(self.model)
         if expressions:
             query = query.where(*expressions)
+        if order_by is not None:
+            query = query.order_by(order_by)
         if skip is not None and limit is not None:
             query = query.offset(skip).limit(limit)
         result = await self.session.scalars(query)
